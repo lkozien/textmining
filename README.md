@@ -9,6 +9,12 @@ Macierz liczebnosciowa      control = list(weighting = weightTf)
 Macierz TfIdf -             control = list(weighting = weightTfIdf)
 Macierz logarytmiczna -     control = list(weighting = function(x) weightSMART(x, spec = "lnn"))
 
+## TODO
+[] Konwerter wektor -> korpus (czy jakoś tak)
+[] Laborki 5 - Łukasz
+[] Laborki 6
+[] Funkcje do wykresów, które można wymyślić
+
 ## Funkcje do wczytywania:
 
 ### Funkcja wczytująca dane z pliku do korpusu
