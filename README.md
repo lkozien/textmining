@@ -10,10 +10,13 @@ Dla termow trzeba pamietac, zeby macierz Term-Dokument miala parametr control.
 * Macierz logarytmiczna -     control = list(weighting = function(x) weightSMART(x, spec = "lnn"))
 
 ## TODO
-- [ ] Konwerter wektor -> korpus (czy jakoś tak)
+- [ ] Konwerter wektor -> korpus (podany gotowiec jak to zrobić)
+- [ ] Konwerter korpus -> wektor
 - [ ] Laborki 5 - Łukasz
 - [ ] Laborki 6
 - [ ] Funkcje do wykresów, które można wymyślić
+- [ ] Funkcje do grupowania hierarchicznego
+- [ ] Funkcje do grupowania niehierarchicznego
 
 ## Funkcje do wczytywania:
 
