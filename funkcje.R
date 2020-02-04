@@ -328,6 +328,7 @@ f_rysuj_dendrogram <- function(matrix, metoda){
   plot(hg_ladne, main = paste("Dendogram na podstawie miary:\n", metoda))
   rect.dendrogram(hg_ladne, k = 3, border = "grey20", lty = 2)
 }
+
 wektor_nieoczyszczony <- f_wczytaj_dane_do_wektora("coffee_tweets.csv")
 wektor_oczyszczony <- f_czysc_wektor(wektor_nieoczyszczony)
 macierz_term_dokument_oczyszczona <- f_przeksztalc_wektor_na_macierz_term_dokument(wektor_oczyszczony)
@@ -465,15 +466,15 @@ wektor_lemy <- f_lematyzacja_wektora_zdan(wektor_czysty, "slownik2.txt")
 
 # ------------------------------------------------------------------------------------------------------------------
 # Funkcja oblicza odelosci miedzy dokumentami - do grupowania hierarchicznego
-# --- Przyjmuje wektor z lemami
+# --- Przyjmuje macierz dokument-term
 # --- Zwraca wektor(?) odleglosci
 # ------------------------------------------------------------------------------------------------------------------
-f_oblicz_odleglosci_miedzy_dokumentami<- function(dokumenty_dokument_term){
+f_oblicz_odleglosci_miedzy_dokumentami<- function(macierz_dokument_term){
 
   # Obliczenie odleg³oœci pomiêdzy dokumentami
   
-  dokumenty_data_matrix <- as.matrix(dokumenty_dokument_term)
-  odl <- dist(przyslowia_dm) # domyslnie uzyta jest miara euklidesowa (method = "euclidean")
+  dokumenty_data_matrix <- as.matrix(macierz_dokument_term)
+  odl <- dist(dokumenty_data_matrix) # domyslnie uzyta jest miara euklidesowa (method = "euclidean")
 }
 
 wektor <- f_wczytaj_dane_do_wektora("coffee_tweets.csv")
@@ -561,6 +562,7 @@ f_analiza_korespondencji<- function(macierz_dokument_term){
   # Obliczenia
   wynik <- ca(przyslowia_matrix)
 }
+
 przyslowia_wektor <- f_wczytaj_dane_do_wektora_z_txt("przyslowia.txt")
 czyste_przyslowia <- f_czysc_wektor(przyslowia_wektor, c("czego", "czy", "i", "tego", "w", "z"))
 przyslowia_lemy <- f_lematyzacja_wektora_zdan(czyste_przyslowia, "slownik.txt")
