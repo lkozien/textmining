@@ -4,16 +4,16 @@ Materiały na egzamin z Text Miningu
 ## Ważne
 Dla termow trzeba pamietac, zeby macierz Term-Dokument miala parametr control.
 
-Macierz binarna             control = list(weighting = weightBin)
-Macierz liczebnosciowa      control = list(weighting = weightTf)
-Macierz TfIdf -             control = list(weighting = weightTfIdf)
-Macierz logarytmiczna -     control = list(weighting = function(x) weightSMART(x, spec = "lnn"))
+* Macierz binarna             control = list(weighting = weightBin)
+* Macierz liczebnosciowa      control = list(weighting = weightTf)
+* Macierz TfIdf -             control = list(weighting = weightTfIdf)
+* Macierz logarytmiczna -     control = list(weighting = function(x) weightSMART(x, spec = "lnn"))
 
 ## TODO
-[] Konwerter wektor -> korpus (czy jakoś tak)
-[] Laborki 5 - Łukasz
-[] Laborki 6
-[] Funkcje do wykresów, które można wymyślić
+- [ ] Konwerter wektor -> korpus (czy jakoś tak)
+- [ ] Laborki 5 - Łukasz
+- [ ] Laborki 6
+- [ ] Funkcje do wykresów, które można wymyślić
 
 ## Funkcje do wczytywania:
 
