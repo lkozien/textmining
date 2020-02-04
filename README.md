@@ -1,6 +1,14 @@
 # EGZAMIN 
 Materiały na egzamin z Text Miningu
 
+## Ważne
+Dla termow trzeba pamietac, zeby macierz Term-Dokument miala parametr control.
+
+Macierz binarna             control = list(weighting = weightBin)
+Macierz liczebnosciowa      control = list(weighting = weightTf)
+Macierz TfIdf -             control = list(weighting = weightTfIdf)
+Macierz logarytmiczna -     control = list(weighting = function(x) weightSMART(x, spec = "lnn"))
+
 ## Funkcje do wczytywania:
 
 ### Funkcja wczytująca dane z pliku do korpusu
@@ -129,3 +137,106 @@ wektor_czysty <- f_czysc_wektor(wektor)
 wektor_lemy <- f_lematyzacja_wektora_zdan(wektor_czysty, "slownik2.txt")
 ```
 
+## Funkcje rysujące:
+
+### Funkcja rysujaca barplot z 10 najczestszymi termami
+```R
+f_rysuj_najczestsze_termy <- function(macierz_term_dokument)
+```
+* Przyjmuje macierz Term-Dokument
+* Rysuje wykres liczebosci danych termow
+* Macierz term-dokument musi byc oczyszczona przed uzyciem. Domyslnie wybiera z posortowanej tabeli 10 termow
+
+#### Przykład użycia:
+```R
+korpus_nieoczyszczony <- f_wczytaj_dane_do_korpusu("coffee_tweets.csv")
+korpus_oczyszczony <- f_czysc_korpus(korpus_nieoczyszczony)
+macierz_term_dokument_oczyszczona <- TermDocumentMatrix(korpus_oczyszczony)
+f_rysuj_najczestsze_termy(macierz_term_dokument_oczyszczona)
+```
+
+### Funkcja rysująca dendrogram
+```R
+f_rysuj_dendrogram <- function(matrix, metoda)
+```
+* Przyjmuje macierz i metode odległości (euclidean, manhattan, cosine, jaccard)
+* Macierz musi byc oczyszczona
+
+#### Przykład użycia:
+```R
+wektor_nieoczyszczony <- f_wczytaj_dane_do_wektora("coffee_tweets.csv")
+wektor_oczyszczony <- f_czysc_wektor(wektor_nieoczyszczony)
+macierz_term_dokument_oczyszczona <- f_przeksztalc_wektor_na_macierz_term_dokument(wektor_oczyszczony)
+f_rysuj_dendrogram(matrix, "euclidean") # euclidean, manhattan, cosine, jaccard
+```
+
+## Funkcje do analizy:
+
+### Funkcja wykonująca analizę korespondencji
+```R
+f_analiza_korespondencji<- function(macierz_dokument_term)
+```
+* Przyjmuje macierz dokument-term
+* Zwraca korpus z informacjami?
+* Macierz musi byc oczyszczona
+
+#### Przykład użycia:
+```R
+przyslowia_wektor <- f_wczytaj_dane_do_wektora_z_txt("przyslowia.txt")
+czyste_przyslowia <- f_czysc_wektor(przyslowia_wektor, c("czego", "czy", "i", "tego", "w", "z"))
+przyslowia_lemy <- f_lematyzacja_wektora_zdan(czyste_przyslowia, "slownik.txt")
+przyslowia_dokument_term <- f_przeksztalc_wektor_na_macierz_dokument_term(przyslowia_lemy)
+wynik <- f_analiza_korespondencji(przyslowia_dokument_term)
+```
+
+
+### Funkcja obliczająca rzadkość termów w macierzy Term-Dokument
+```R
+f_rzadkosc_termow <- function(macierz_term_dokument)
+```
+* Przyjmuje macierz Term-Dokument
+* Zwraca matryce
+* Macierz Term-Dokument musi byc oczyszczona
+* Im wieksza liczba tym rzadszy dokument. Np 10 dokumentow, "Jesien" 0.1, oznacza to, ze tylko w 1 na 10 pojawia sie to slowo. 
+* Non-/sparse entries: X/Y - X termow ma wartosc niezerowa, Y zerowa we wszystkich dokumentach.
+* Sparsity - np 95% - 95% procent komorek w tej matrycy ma wartosc 0
+
+
+#### Przykład użycia:
+```R
+macierz_term_dokument_oczyszczona <- TermDocumentMatrix(korpus_oczyszczony, control = list(weighting = function(x) weightSMART(x, spec = "lnn")))
+rzadkosc_termow <- f_rzadkosc_termow(macierz_term_dokument_oczyszczona)
+```
+
+## Konwertery:
+
+### Funkcja przeksztalcajaca wektor na macierz Term-Dokument
+```R
+f_przeksztalc_wektor_na_macierz_term_dokument <- function(wektor)
+```
+* Przyjmuje wektor
+* Zwraca macierz Term-Dokument
+* Wektor musi byc oczyszczony przed uzyciem
+
+#### Przykład użycia:
+```R
+wektor_nieoczyszczony <- f_wczytaj_dane_do_wektora("coffee_tweets.csv")
+wektor_oczyszczony <- f_czysc_wektor(wektor_nieoczyszczony)
+macierz_term_dokument_oczyszczona <- f_przeksztalc_wektor_na_macierz_term_dokument(wektor_oczyszczony)
+```
+
+### Funkcja przeksztalcajaca wektor na macierz Dokument-Term
+```R
+f_przeksztalc_wektor_na_macierz_dokument_term <- function(wektor)
+```
+* Przyjmuje wektor
+* Zwraca macierz Dokument-Term
+* Wektor musi byc oczyszczony przed uzyciem
+
+#### Przykład użycia:
+```R
+przyslowia_wektor <- f_wczytaj_dane_do_wektora_z_txt("przyslowia.txt")
+czyste_przyslowia <- f_czysc_wektor(przyslowia_wektor, c("czego", "czy", "i", "tego", "w", "z"))
+przyslowia_lemy <- f_lematyzacja_wektora_zdan(czyste_przyslowia, "slownik.txt")
+przyslowia_dokument_term <- f_przeksztalc_wektor_na_macierz_dokument_term(przyslowia_lemy)
+```
