@@ -1,4 +1,4 @@
-# Przestrzeñ robocza
+# Przestrze? robocza
 install.packages(c("stringr", "stringi", "tm", "dplyr", "SnowballC", "dendextend", "ca", "factoextra"))
 library("stringr")
 library("stringi")
@@ -194,7 +194,7 @@ czysty_korpus[[20]]
 # ------------------------------------------------------------------------------------------------------------------
 f_czysc_wektor <- function(wektor, slowa=""){
   # wektor <- removeWords(wektor, "@") #mozna dodac swoje znaki konkretne
-  wektor <- str_replace(wektor, "–", "") #mozliwe, ze trzeba usunac jakies znaki specjalne
+  wektor <- str_replace(wektor, "?", "") #mozliwe, ze trzeba usunac jakies znaki specjalne
   
   # Zamiane duzych znakow na male
   wektor <- tolower(wektor)
@@ -232,7 +232,7 @@ czysty_wektor <- f_czysc_wektor(wektor, slowa = c("czego", "czy", "i", "tego", "
 # ------------------------------------------------------------------------------------------------------------------
 # Funkcja przeksztalcajaca wektor na macierz Term-Dokument
 # --- Przyjmuje wektor
-# --- Zwraca macierz Term-Dokument
+# --- Zwraca macierz Dokument-Term
 # --- Wektor musi byc oczyszczony przed uzyciem
 # ------------------------------------------------------------------------------------------------------------------
 f_przeksztalc_wektor_na_macierz_dokument_term <- function(wektor){
@@ -295,10 +295,10 @@ f_rysuj_najczestsze_termy <- function(macierz_term_dokument){
   # Konwersja do macierzy
   matryca <- as.matrix(macierz_term_dokument)
   
-  # Obliczanie liczebnoœci termów
+  # Obliczanie liczebno?ci term?w
   ilosc_termow <- rowSums(matryca)
   
-  # Sortowanie wed³ug liczebnoœci
+  # Sortowanie wed?ug liczebno?ci
   ilosc_termow <- sort(ilosc_termow, decreasing = TRUE)
   
   # Generowanie wykresu
@@ -470,14 +470,14 @@ wektor_lemy <- f_lematyzacja_wektora_zdan(wektor_czysty, "slownik2.txt")
 # ------------------------------------------------------------------------------------------------------------------
 f_odleglosci_miedzy_dokumentami<- function(wektor_lemy){
   
-  # Utworzenie macierzy dokument-term z wagami liczebnoœciowymi
+  # Utworzenie macierzy dokument-term z wagami liczebno?ciowymi
   
   dokumenty_zrodlo <- VectorSource(wektor_lemy)
   dokumenty_korpus <- VCorpus(dokumenty_zrodlo)
   
   dokumenty_dokument_term <- DocumentTermMatrix(dokumenty_korpus)
 
-  # Obliczenie odleg³oœci pomiêdzy dokumentami
+  # Obliczenie odleg?o?ci pomi?dzy dokumentami
   
   dokumenty_data_matrix <- as.matrix(dokumenty_dokument_term)
   odl <- dist(przyslowia_dm)
