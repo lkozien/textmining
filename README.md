@@ -10,13 +10,10 @@ Dla termow trzeba pamietac, zeby macierz Term-Dokument miala parametr control.
 * Macierz logarytmiczna -     control = list(weighting = function(x) weightSMART(x, spec = "lnn"))
 
 ## TODO
-- [ ] Konwerter wektor -> korpus (podany gotowiec jak to zrobić)
 - [ ] Konwerter korpus -> wektor
 - [ ] Laborki 5 - Łukasz
 - [ ] Laborki 6
 - [ ] Funkcje do wykresów, które można wymyślić
-- [ ] Funkcje do grupowania hierarchicznego
-- [ ] Funkcje do grupowania niehierarchicznego
 
 ## Funkcje do wczytywania:
 
@@ -216,6 +213,54 @@ f_rzadkosc_termow <- function(macierz_term_dokument)
 macierz_term_dokument_oczyszczona <- TermDocumentMatrix(korpus_oczyszczony, control = list(weighting = function(x) weightSMART(x, spec = "lnn")))
 rzadkosc_termow <- f_rzadkosc_termow(macierz_term_dokument_oczyszczona)
 ```
+
+
+### Funkcja do grupowania hierarchicznego
+```R
+f_oblicz_odleglosci_miedzy_dokumentami<- function(macierz_dokument_term)
+```
+* Przyjmuje macierz dokument-term
+* Zwraca korpus z informacjami?
+* Macierz musi byc oczyszczona
+
+
+#### Przykład użycia:
+```R
+wektor <- f_wczytaj_dane_do_wektora("coffee_tweets.csv")
+wektor_czysty <- f_czysc_wektor(wektor)
+wektor_lemy <- f_lematyzacja_wektora_zdan(wektor_czysty, "slownik2.txt")
+macierz_dokument_term <- f_przeksztalc_wektor_na_macierz_dokument_term(wektor_lemy)
+odleglosc <- f_oblicz_odleglosci_miedzy_dokumentami(macierz_dokument_term)
+odleglosc
+
+# Grupowanie hierarchiczne
+hg <- hclust(odleglosc)
+plot(hg)
+```
+
+
+### Funkcja do grupowania niehierarchicznego
+```R
+f_normalizuj_i_grupuj_wektory_dokumentow<- function(macierz_dokument_term, ilosc_klastrow)
+```
+* Przyjmuje macierz dokument-term i ilosc klastrow
+* Zwraca korpus z informacjami?
+* Macierz musi byc oczyszczona
+
+
+#### Przykład użycia:
+```R
+wektor_nieoczyszczony <- f_wczytaj_dane_do_wektora("coffee_tweets.csv")
+wektor_oczyszczony <- f_czysc_wektor(wektor_nieoczyszczony)
+wektor_lemy <- f_lematyzacja_wektora_zdan(wektor_oczyszczony, "slownik2.txt")
+macierz_dokument_term <- f_przeksztalc_wektor_na_macierz_dokument_term(wektor_lemy)
+
+# Grupowanie niehierarchiczne do podanej ilosci klastrow
+wynik <- f_normalizuj_i_grupuj_wektory_dokumentow(macierz_dokument_term, 3)
+wynik
+```
+
+
 
 ## Konwertery:
 
