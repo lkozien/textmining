@@ -91,5 +91,41 @@ macierz_term_dokument_oczyszczona <- TermDocumentMatrix(korpus_oczyszczony, list
 termy_najczestsze <- f_usun_rzadke_termy(macierz_term_dokument_oczyszczona, 0.95)
 ```
 
+### Funkcja wykonująca stemming na korpusie 
 
+> Stemming – w wyszukiwaniu informacji oraz w morfologii (w językoznawstwie) jest to proces usunięcia ze słowa końcówki fleksyjnej pozostawiając tylko temat wyrazu. Proces stemmingu może być przeprowadzany w celu zmierzenia popularności danego słowa. Końcówki fleksyjne zaniżają faktyczne dane. Algorytmy stemmingu są przedmiotem badań informatyki od lat 60. XX wieku. Pierwszy stemmer, czyli program do przeprowadzania procesu stemmingu, został napisany i opublikowany przez Julie Beth Lovins w 1968. W czerwcu 1980 Martin Porter opublikował swój algorytm stemmingu, zwany Algorytmem Portera. Np. angielskie słowa: „connection”, „connections”, „connective”, „connected”, „connecting” poddane stemmingowi dadzą ten sam wynik, czyli słowo „connect”
+
+
+```R
+f_steeming_korpusu <- function(korpus){
+```
+* Przyjmuje macierz Term-Dokument i granice występowania
+* Zwraca macierz Term-Dokument
+* Macierz Term-Dokument musi byc oczyszczona
+* Im wieksza liczba tym rzadszy dokument. Np 10 dokumentow, "Jesien" 0.1, oznacza to, ze tylko w 1 na 10 pojawia sie to slowo
+
+#### Przykład użycia:
+```R
+korpus_nieoczyszczony <- f_wczytaj_dane_do_korpusu("coffee_tweets.csv")
+korpus_oczyszczony <- f_czysc_korpus(korpus_nieoczyszczony)
+macierz_steeming <- f_steeming_korpusu(korpus_oczyszczony)
+```
+
+### Funkcja wykonująca lematyzacje na wektorze
+
+> lematyzacja to sprowadzanie danego słowa do jego formy podstawowej (hasłowej), która reprezentuje dany wyraz, np. wiórkami → wiórek, jeżdżący → jeździć, uległa → ulec lub uległy; słowo specjalistyczne
+
+```R
+f_lematyzacja_wektora_zdan <- function(wektor_zdan, sciezka_do_slownika){
+```
+* Przyjmuje wektor z oryginalnymi slowami, slownik - 1 kolumna slowo podstawowe, 2 odmiana
+* Zwraca wektor z lemami
+* Wektor musi byc oczyszczony
+
+#### Przykład użycia:
+```R
+wektor <- f_wczytaj_dane_do_wektora("coffee_tweets.csv")
+wektor_czysty <- f_czysc_wektor(wektor)
+wektor_lemy <- f_lematyzacja_wektora_zdan(wektor_czysty, "slownik2.txt")
+```
 
