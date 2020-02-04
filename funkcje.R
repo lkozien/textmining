@@ -464,32 +464,85 @@ wektor_lemy <- f_lematyzacja_wektora_zdan(wektor_czysty, "slownik2.txt")
 
 
 # ------------------------------------------------------------------------------------------------------------------
-# Funkcja oblicza odelosci miedzy dokumentami
+# Funkcja oblicza odelosci miedzy dokumentami - do grupowania hierarchicznego
 # --- Przyjmuje wektor z lemami
 # --- Zwraca wektor(?) odleglosci
 # ------------------------------------------------------------------------------------------------------------------
-f_odleglosci_miedzy_dokumentami<- function(wektor_lemy){
-  
-  # Utworzenie macierzy dokument-term z wagami liczebno?ciowymi
-  
-  dokumenty_zrodlo <- VectorSource(wektor_lemy)
-  dokumenty_korpus <- VCorpus(dokumenty_zrodlo)
-  
-  dokumenty_dokument_term <- DocumentTermMatrix(dokumenty_korpus)
+
+f_oblicz_odleglosci_miedzy_dokumentami<- function(dokumenty_dokument_term){
+
 
   # Obliczenie odleg?o?ci pomi?dzy dokumentami
   
   dokumenty_data_matrix <- as.matrix(dokumenty_dokument_term)
-  odl <- dist(przyslowia_dm)
+  odl <- dist(przyslowia_dm) # domyslnie uzyta jest miara euklidesowa (method = "euclidean")
 }
 
 wektor <- f_wczytaj_dane_do_wektora("coffee_tweets.csv")
 wektor_czysty <- f_czysc_wektor(wektor)
 wektor_lemy <- f_lematyzacja_wektora_zdan(wektor_czysty, "slownik2.txt")
-odleglosc <- f_odleglosci_miedzy_dokumentami(wektor_lemy)
+macierz_dokument_term <- f_przeksztalc_wektor_na_macierz_dokument_term(wektor_lemy)
+odleglosc <- f_oblicz_odleglosci_miedzy_dokumentami(macierz_dokument_term)
 odleglosc
+
+# Grupowanie hierarchiczne
 hg <- hclust(odleglosc)
 plot(hg)
+
+
+
+
+
+
+
+
+# ------------------------------------------------------------------------------------------------------------------
+# Funkcja normalizacji wektorow dokumentow i grupowanie - do grupowania niehierarchicznego
+# --- Przyjmuje macierz dokument-term
+# --- Zwraca korpus z informacjami?
+# ------------------------------------------------------------------------------------------------------------------
+f_normalizuj_i_grupuj_wektory_dokumentow<- function(macierz_dokument_term, ilosc_klastrow){
+  
+  # Konwersja na macierz
+  matrix <- as.matrix(macierz_dokument_term)
+  
+  # Obliczenia
+  matrix_scale <- t(scale(t(matrix), center=FALSE, scale=sqrt(rowSums(matrix^2))))
+  
+  km <- kmeans(matrix_scale, ilosc_klastrow)
+}
+
+wektor_nieoczyszczony <- f_wczytaj_dane_do_wektora("coffee_tweets.csv")
+wektor_oczyszczony <- f_czysc_wektor(wektor_nieoczyszczony)
+wektor_lemy <- f_lematyzacja_wektora_zdan(wektor_oczyszczony, "slownik2.txt")
+macierz_dokument_term <- f_przeksztalc_wektor_na_macierz_dokument_term(wektor_lemy)
+
+# Grupowanie niehierarchiczne do podanej ilosci klastrow
+wynik <- f_normalizuj_i_grupuj_wektory_dokumentow(macierz_dokument_term, 3)
+wynik
+
+# działania
+
+# Sortowanie kolumn
+sort(wynik$centers[1,], decreasing = T)
+sort(wynik$centers[2,], decreasing = T)
+sort(wynik$centers[3,], decreasing = T)
+
+# Wywalenie lemow, ktore wystepuja najrzadziej
+colnames(wynik$centers)[wynik$centers[1,] != 0]
+colnames(wynik$centers)[wynik$centers[2,] != 0]
+colnames(wynik$centers)[wynik$centers[3,] != 0]
+
+# Ktory dokument nalezy do ktorego klastra
+wynik$cluster == 1
+Docs(macierz_dokument_term[wynik$cluster == 1,])
+
+# Najszczestsze termy dla danego klastra
+findFreqTerms(macierz_dokument_term[wynik$cluster == 1,], 2)
+findFreqTerms(macierz_dokument_term[wynik$cluster == 2,], 2)
+findFreqTerms(macierz_dokument_term[wynik$cluster == 3,], 2)
+
+
 
 
 
@@ -534,3 +587,13 @@ summary(wynik)
 plot(wynik)
 fviz_ca(wynik, repel = TRUE)
 fviz_ca(wynik, axes = c(1, 4), repel = TRUE)
+
+
+
+
+
+
+
+
+
+
