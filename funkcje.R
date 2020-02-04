@@ -230,9 +230,9 @@ czysty_wektor <- f_czysc_wektor(wektor, slowa = c("czego", "czy", "i", "tego", "
 
 
 # ------------------------------------------------------------------------------------------------------------------
-# Funkcja przeksztalcajaca wektor na macierz Term-Dokument
+# Funkcja przeksztalcajaca wektor na macierz Dokument-Term
 # --- Przyjmuje wektor
-# --- Zwraca macierz Term-Dokument
+# --- Zwraca macierz Dokument-Term
 # --- Wektor musi byc oczyszczony przed uzyciem
 # ------------------------------------------------------------------------------------------------------------------
 f_przeksztalc_wektor_na_macierz_dokument_term <- function(wektor){
@@ -241,12 +241,12 @@ f_przeksztalc_wektor_na_macierz_dokument_term <- function(wektor){
   
   wektor_korpus <- VCorpus(wektor_zrodlo)
   
-  macierz_term_dokument <- DocumentTermMatrix(wektor_korpus)
+  macierz_dokument_term <- DocumentTermMatrix(wektor_korpus)
 }
 
 wektor_nieoczyszczony <- f_wczytaj_dane_do_wektora("coffee_tweets.csv")
 wektor_oczyszczony <- f_czysc_wektor(wektor_nieoczyszczony)
-macierz_dokument_term_oczyszczona <- f_przeksztalc_wektor_na_macierz_term_dokument(wektor_oczyszczony)
+macierz_dokument_term_oczyszczona <- f_przeksztalc_wektor_na_macierz_dokument_term(wektor_oczyszczony)
 inspect(macierz_dokument_term_oczyszczona)
 
 
@@ -256,9 +256,9 @@ inspect(macierz_dokument_term_oczyszczona)
 
 
 # ------------------------------------------------------------------------------------------------------------------
-# Funkcja przeksztalcajaca wektor na macierz Dokument-Term
+# Funkcja przeksztalcajaca wektor na macierz Term-Dokument
 # --- Przyjmuje wektor
-# --- Zwraca macierz Dokument-Term
+# --- Zwraca macierz Term-Dokument
 # --- Wektor musi byc oczyszczony przed uzyciem
 # ------------------------------------------------------------------------------------------------------------------
 f_przeksztalc_wektor_na_macierz_term_dokument <- function(wektor){
@@ -267,7 +267,7 @@ f_przeksztalc_wektor_na_macierz_term_dokument <- function(wektor){
   
   wektor_korpus <- VCorpus(wektor_zrodlo)
   
-  macierz_dokument_term <- TermDocumentMatrix(wektor_korpus)
+  macierz_term_dokument <- TermDocumentMatrix(wektor_korpus)
 }
 
 wektor_nieoczyszczony <- f_wczytaj_dane_do_wektora("coffee_tweets.csv")
