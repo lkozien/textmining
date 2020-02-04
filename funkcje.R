@@ -495,7 +495,7 @@ plot(hg)
 
 
 # ------------------------------------------------------------------------------------------------------------------
-# Funkcja rormalizacji wektorow dokumentow i grupowanie - do grupowania niehierarchicznego
+# Funkcja normalizacji wektorow dokumentow i grupowanie - do grupowania niehierarchicznego
 # --- Przyjmuje macierz dokument-term
 # --- Zwraca korpus z informacjami?
 # ------------------------------------------------------------------------------------------------------------------
