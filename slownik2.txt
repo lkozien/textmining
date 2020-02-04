@@ -1,0 +1,5 @@
+like;likes
+your;yo
+because;cus
+coffee_podstawa;coffee
+ReTweet;rt
