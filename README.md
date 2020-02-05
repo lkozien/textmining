@@ -11,7 +11,10 @@ Dla termow trzeba pamietac, zeby macierz Term-Dokument miala parametr control.
 
 ## TODO
 - [ ] Konwerter korpus -> wektor
-- [ ] Laborki 5 - Łukasz
+- [ ] Konwerter korpus -> data.frame
+- [ ] Konwerter macierz dokument-term -> data.frame
+- [ ] Konwerter macierz term-dokument -> data.frame
+- [X] Laborki 5 - Łukasz
 - [ ] Laborki 6
 - [ ] Funkcje do wykresów, które można wymyślić
 
