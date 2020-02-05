@@ -662,11 +662,36 @@ data_norm = f_normalizuj_dane(dane, "mail")
 knn_k1 = f_klasyfikuj_knn(data_norm, 1, "mail", 4)
 
 
+# ------------------------------------------------------------------------------------------------------------------
+# Funkcja przeprowadza klasyfikację metodą Bayes
+# --- Przyjmuje data.frame, kolumnę z wynikami i liczbę kolumn
+# --- Zwraca macierz błędów 
+# --- Macierz musi byc oczyszczona
+# ------------------------------------------------------------------------------------------------------------------
+f_klasyfikuj_bayes <- function(data, result_column_name, columns){
+  # Podzielenie na zbior testowy i uczacy, 
+  # Pierwszy argument to kolumna po której ma dzielic (aby bylo proporcjonalnie wszystkich klas)
+  # p - podzial uczacy/testowy, tutaj 0,7 zbioru uczacy, 0,3 testowy
+  wUczacym <- createDataPartition(data[,result_column_name], p = 0.7, list = FALSE)
+  Uczacy <- data[wUczacym,]
+  Testowy <- data[-wUczacym,]
+  
+  #tworzenie modelu -> zamiast mail powinna być nazwa kolumny zawierająca klase
+  #nie umiałem tego ogarnąc z parametru result_column_name, ale przekazuje sie to samo tylko nie jako string
+  model <- naiveBayes(mail ~ ., data = Uczacy)
+  
+  przewidywanie <- predict(model, Testowy[, -columns])
+  
+  return (confusionMatrix(przewidywanie, Testowy[,result_column_name]))
+}
 
 
+dane <- data.frame(hello = c(1,1,2,1,1,0,1,2,1,3),
+                   business = c(0,1,3,0,1,2,0,1,2,3),
+                   replica = c(3,2,1,0,0,0,1,0,3,0),
+                   mail = c("spam","spam","ham","ham","ham","ham","spam","ham","spam","ham"))
 
-
-
-
+data_norm = f_normalizuj_dane(dane, "mail")
+bayes_k1 = f_klasyfikuj_bayes(data_norm, "mail", 4)
 
 
