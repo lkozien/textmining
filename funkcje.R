@@ -1,5 +1,5 @@
-# Przestrzeñ robocza
-install.packages(c("stringr", "stringi", "tm", "dplyr", "SnowballC", "dendextend", "ca", "factoextra"))
+# Przestrze? robocza
+install.packages(c("stringr", "stringi", "tm", "dplyr", "SnowballC", "dendextend", "ca", "factoextra","tidyr", "ggplot2", "kernlab", "caret", "class", "e1071"))
 library("stringr")
 library("stringi")
 library("tm")
@@ -8,6 +8,12 @@ library("SnowballC")
 library("dendextend")
 library("ca")
 library("factoextra")
+library("tidyr")
+library("ggplot2")
+library("kernlab")
+library("caret")
+library("class")
+library("e1071")
 
 setwd("C:/Users/gryff/Documents/R")
 
@@ -194,7 +200,7 @@ czysty_korpus[[20]]
 # ------------------------------------------------------------------------------------------------------------------
 f_czysc_wektor <- function(wektor, slowa=""){
   # wektor <- removeWords(wektor, "@") #mozna dodac swoje znaki konkretne
-  wektor <- str_replace(wektor, "–", "") #mozliwe, ze trzeba usunac jakies znaki specjalne
+  wektor <- str_replace(wektor, "?", "") #mozliwe, ze trzeba usunac jakies znaki specjalne
   
   # Zamiane duzych znakow na male
   wektor <- tolower(wektor)
@@ -295,10 +301,10 @@ f_rysuj_najczestsze_termy <- function(macierz_term_dokument){
   # Konwersja do macierzy
   matryca <- as.matrix(macierz_term_dokument)
   
-  # Obliczanie liczebnoœci termów
+  # Obliczanie liczebno?ci term?w
   ilosc_termow <- rowSums(matryca)
   
-  # Sortowanie wed³ug liczebnoœci
+  # Sortowanie wed?ug liczebno?ci
   ilosc_termow <- sort(ilosc_termow, decreasing = TRUE)
   
   # Generowanie wykresu
@@ -471,7 +477,7 @@ wektor_lemy <- f_lematyzacja_wektora_zdan(wektor_czysty, "slownik2.txt")
 # ------------------------------------------------------------------------------------------------------------------
 f_oblicz_odleglosci_miedzy_dokumentami<- function(macierz_dokument_term){
 
-  # Obliczenie odleg³oœci pomiêdzy dokumentami
+  # Obliczenie odleg?o?ci pomi?dzy dokumentami
   
   dokumenty_data_matrix <- as.matrix(macierz_dokument_term)
   odl <- dist(dokumenty_data_matrix) # domyslnie uzyta jest miara euklidesowa (method = "euclidean")
@@ -487,12 +493,6 @@ odleglosc
 # Grupowanie hierarchiczne
 hg <- hclust(odleglosc)
 plot(hg)
-
-
-
-
-
-
 
 
 # ------------------------------------------------------------------------------------------------------------------
@@ -520,7 +520,7 @@ macierz_dokument_term <- f_przeksztalc_wektor_na_macierz_dokument_term(wektor_le
 wynik <- f_normalizuj_i_grupuj_wektory_dokumentow(macierz_dokument_term, 3)
 wynik
 
-# dzia³ania
+# dzia?ania
 
 # Sortowanie kolumn
 sort(wynik$centers[1,], decreasing = T)
@@ -587,6 +587,79 @@ summary(wynik)
 plot(wynik)
 fviz_ca(wynik, repel = TRUE)
 fviz_ca(wynik, axes = c(1, 4), repel = TRUE)
+
+
+# ------------------------------------------------------------------------------------------------------------------
+# Funkcja przeprowadza normalizacje (min-max ?)
+# --- Przyjmuje data.frame
+# --- Zwraca znormalizowany data.frame
+# ------------------------------------------------------------------------------------------------------------------
+f_normalizuj <- function(x){
+  (x-min(x))/(max(x)-min(x))
+}
+
+znormalizowane_dane <- f_normalizuj(c(10000,13121,512,100,511,2220,511,20,11,311))
+
+# ------------------------------------------------------------------------------------------------------------------
+# Funkcja przeprowadza normalizacje (min-max ?) bez kolumny okreslajacej klase
+# --- Przyjmuje data.frame i kolumne z wynikiem
+# --- Zwraca znormalizowany data.frame
+# ------------------------------------------------------------------------------------------------------------------
+f_normalizuj_dane <- function(x, column){
+  
+  #chcemy normalizowac (wartosci 0-1) wartosci wszystkie oprocz kolumny wynikowej, 
+  #wiec tworzymy data.frame bez kolumny wynikowej i normalizujemy kazda z nich
+  tmp <- x
+  result_column <- x[,column]
+  data_norm <- tmp %>% 
+    select(-column) %>% 
+    mutate_all(funs(f_normalizuj(.)))
+  
+  data_norm[column] <- result_column
+  #zwracamy data.frame zawierajacy kolumny znormalizowane wraz z kolumna wynikowa
+  return (data_norm)
+
+}
+
+nieznormalizowane_dane <- data.frame(hello = c(10,1,213,1231,511,123,161,271,1123,351),
+                   business = c(0,1,3,0,1,2,0,1,2,3),
+                   replica = c(3,2,1,0,0,0,1,0,3,0),
+                   mail = c("spam","spam","ham","ham","ham","ham","spam","ham","spam","ham"))
+
+znormalizowany_data_frame = f_normalizuj_dane(nieznormalizowane_dane, "mail")
+
+
+# ------------------------------------------------------------------------------------------------------------------
+# Funkcja przeprowadza klasyfikacjÄ™ metodÄ… KNN
+# --- Przyjmuje data.frame, iloÅ›Ä‡ grup na ktÃ³rÄ… powinno podzieliÄ‡, kolumnÄ™ z wynikami i liczbÄ™ kolumn
+# --- Zwraca macierz bÅ‚Ä™dÃ³w 
+# --- Macierz musi byc oczyszczona
+# ------------------------------------------------------------------------------------------------------------------
+f_klasyfikuj_knn <- function(data, k, result_column_name, columns){
+  # Podzielenie na zbior testowy i uczacy, 
+  # Pierwszy argument to kolumna po ktÃ³rej ma dzielic (aby bylo proporcjonalnie wszystkich klas)
+  # p - podzial uczacy/testowy, tutaj 0,7 zbioru uczacy, 0,3 testowy
+  wUczacym <- createDataPartition(data[,result_column_name], p = 0.7, list = FALSE)
+  Uczacy <- data[wUczacym,]
+  Testowy <- data[-wUczacym,]
+  
+  # Utworzenie modelu
+  modelSpamKnn <- knn(train = Uczacy[,-columns],
+                      test = Testowy[,-columns],
+                      cl = Uczacy[,columns],
+                      k = k) 
+  
+  # Utworzenie macierzy bÅ‚Ä™dÃ³w knn
+  return (confusionMatrix(modelSpamKnn, Testowy[,result_column_name]))
+}
+
+dane <- data.frame(hello = c(1,1,2,1,1,0,1,2,1,3),
+                   business = c(0,1,3,0,1,2,0,1,2,3),
+                   replica = c(3,2,1,0,0,0,1,0,3,0),
+                   mail = c("spam","spam","ham","ham","ham","ham","spam","ham","spam","ham"))
+
+data_norm = f_normalizuj_dane(dane, "mail")
+knn_k1 = f_klasyfikuj_knn(data_norm, 1, "mail", 4)
 
 
 
