@@ -591,7 +591,7 @@ fviz_ca(wynik, axes = c(1, 4), repel = TRUE)
 
 # ------------------------------------------------------------------------------------------------------------------
 # Funkcja przeprowadza normalizacje (min-max ?)
-# --- Przyjmuje data.frame
+# --- Przyjmuje wektor
 # --- Zwraca znormalizowany data.frame
 # ------------------------------------------------------------------------------------------------------------------
 f_normalizuj <- function(x){
