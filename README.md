@@ -143,6 +143,36 @@ wektor_czysty <- f_czysc_wektor(wektor)
 wektor_lemy <- f_lematyzacja_wektora_zdan(wektor_czysty, "slownik2.txt")
 ```
 
+### Funkcja normalizująca wektor min-max
+```R
+f_normalizuj <- function(x)
+```
+* Przyjmuje wektor
+* Zwraca znormalizowany data.frame
+
+#### Przykład użycia:
+```R
+znormalizowane_dane <- f_normalizuj(c(10000,13121,512,100,511,2220,511,20,11,311))
+```
+
+### Funkcja normalizująca data.frame bez kolumny z klasą
+
+```R
+f_normalizuj_dane <- function(x, column)
+```
+* Przyjmuje data.frame i kolumne z wynikiem
+* Zwraca znormalizowany data.frame
+
+#### Przykład użycia:
+```R
+nieznormalizowane_dane <- data.frame(hello = c(10,1,213,1231,511,123,161,271,1123,351),
+                   business = c(0,1,3,0,1,2,0,1,2,3),
+                   replica = c(3,2,1,0,0,0,1,0,3,0),
+                   mail = c("spam","spam","ham","ham","ham","ham","spam","ham","spam","ham"))
+
+znormalizowany_data_frame = f_normalizuj_dane(nieznormalizowane_dane, "mail")
+```
+
 ## Funkcje rysujące:
 
 ### Funkcja rysujaca barplot z 10 najczestszymi termami
@@ -293,4 +323,47 @@ przyslowia_wektor <- f_wczytaj_dane_do_wektora_z_txt("przyslowia.txt")
 czyste_przyslowia <- f_czysc_wektor(przyslowia_wektor, c("czego", "czy", "i", "tego", "w", "z"))
 przyslowia_lemy <- f_lematyzacja_wektora_zdan(czyste_przyslowia, "slownik.txt")
 przyslowia_dokument_term <- f_przeksztalc_wektor_na_macierz_dokument_term(przyslowia_lemy)
+```
+
+## Funkcje klasyfikujące:
+
+### Funkcja klasyfikująca KNN
+```R
+f_klasyfikuj_knn <- function(data, k, result_column_name, columns)
+```
+* Przyjmuje data.frame, ilość grup na którą powinno podzielić, kolumnę z wynikami i liczbę kolumn
+* Zwraca macierz błędów 
+* Macierz musi byc oczyszczona
+
+#### Przykład użycia:
+```R
+dane <- data.frame(hello = c(1,1,2,1,1,0,1,2,1,3),
+                   business = c(0,1,3,0,1,2,0,1,2,3),
+                   replica = c(3,2,1,0,0,0,1,0,3,0),
+                   mail = c("spam","spam","ham","ham","ham","ham","spam","ham","spam","ham"))
+
+data_norm = f_normalizuj_dane(dane, "mail")
+knn_k1 = f_klasyfikuj_knn(data_norm, 1, "mail", 4)
+```
+
+
+### Funkcja klasyfikująca Bayes
+Ważne - zmienić wywołanie naiveBayes nazwa kolumny z klasą zamiast mail
+
+```R
+f_klasyfikuj_knn <- function(data, k, result_column_name, columns)
+```
+* Przyjmuje data.frame, kolumnę z wynikami i liczbę kolumn
+* Zwraca macierz błędów 
+* Macierz musi byc oczyszczona
+
+#### Przykład użycia:
+```R
+dane <- data.frame(hello = c(1,1,2,1,1,0,1,2,1,3),
+                   business = c(0,1,3,0,1,2,0,1,2,3),
+                   replica = c(3,2,1,0,0,0,1,0,3,0),
+                   mail = c("spam","spam","ham","ham","ham","ham","spam","ham","spam","ham"))
+
+data_norm = f_normalizuj_dane(dane, "mail")
+bayes_k1 = f_klasyfikuj_bayes(data_norm, "mail", 4)
 ```
