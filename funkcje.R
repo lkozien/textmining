@@ -594,9 +594,11 @@ fviz_ca(wynik, axes = c(1, 4), repel = TRUE)
 # --- Przyjmuje data.frame
 # --- Zwraca znormalizowany data.frame
 # ------------------------------------------------------------------------------------------------------------------
-normalizuj <- function(x){
+f_normalizuj <- function(x){
   (x-min(x))/(max(x)-min(x))
 }
+
+znormalizowane_dane <- f_normalizuj(c(10000,13121,512,100,511,2220,511,20,11,311))
 
 # ------------------------------------------------------------------------------------------------------------------
 # Funkcja przeprowadza normalizacje (min-max ?) bez kolumny okreslajacej klase
@@ -604,15 +606,27 @@ normalizuj <- function(x){
 # --- Zwraca znormalizowany data.frame
 # ------------------------------------------------------------------------------------------------------------------
 f_normalizuj_dane <- function(x, column){
+  
+  #chcemy normalizowac (wartosci 0-1) wartosci wszystkie oprocz kolumny wynikowej, 
+  #wiec tworzymy data.frame bez kolumny wynikowej i normalizujemy kazda z nich
   tmp <- x
-  data_norm <- x %>% 
+  result_column <- x[,column]
+  data_norm <- tmp %>% 
     select(-column) %>% 
-    mutate_all(funs(normalizuj(.)))
+    mutate_all(funs(f_normalizuj(.)))
   
-  tmp <-  tmp %>% 
-    bind_cols(column = x$column)
-  
+  data_norm[column] <- result_column
+  #zwracamy data.frame zawierajacy kolumny znormalizowane wraz z kolumna wynikowa
+  return (data_norm)
+
 }
+
+nieznormalizowane_dane <- data.frame(hello = c(10,1,213,1231,511,123,161,271,1123,351),
+                   business = c(0,1,3,0,1,2,0,1,2,3),
+                   replica = c(3,2,1,0,0,0,1,0,3,0),
+                   mail = c("spam","spam","ham","ham","ham","ham","spam","ham","spam","ham"))
+
+znormalizowany_data_frame = f_normalizuj_dane(nieznormalizowane_dane, "mail")
 
 
 # ------------------------------------------------------------------------------------------------------------------
