@@ -1,5 +1,5 @@
 # Przestrze? robocza
-install.packages(c("stringr", "stringi", "tm", "dplyr", "SnowballC", "dendextend", "ca", "factoextra","tidyr", "ggplot2", "kernlab", "caret", "class", "e1071"))
+install.packages(c("stringr", "stringi", "tm", "dplyr", "SnowballC", "dendextend", "ca", "factoextra","tidyr", "ggplot2", "kernlab", "caret", "class", "e1071","tidytext","sentimentr"))
 library("stringr")
 library("stringi")
 library("tm")
@@ -14,6 +14,8 @@ library("kernlab")
 library("caret")
 library("class")
 library("e1071")
+library("tidytext")
+library("sentimentr")
 
 setwd("C:/Users/gryff/Documents/R")
 
@@ -256,11 +258,6 @@ macierz_dokument_term_oczyszczona <- f_przeksztalc_wektor_na_macierz_dokument_te
 inspect(macierz_dokument_term_oczyszczona)
 
 
-
-
-
-
-
 # ------------------------------------------------------------------------------------------------------------------
 # Funkcja przeksztalcajaca wektor na macierz Term-Dokument
 # --- Przyjmuje wektor
@@ -281,14 +278,34 @@ wektor_oczyszczony <- f_czysc_wektor(wektor_nieoczyszczony)
 macierz_term_dokument_oczyszczona <- f_przeksztalc_wektor_na_macierz_term_dokument(wektor_oczyszczony)
 inspect(macierz_term_dokument_oczyszczona)
 
+# ------------------------------------------------------------------------------------------------------------------
+# Funkcja konwertujaca korpus na data.frame
+# --- Przyjmuje VCorpus
+# --- Zwraca data.frame
+# ------------------------------------------------------------------------------------------------------------------
+f_przeksztalc_korpus_na_data_frame <- function(corpus){
+  return (data.frame(text=sapply(corpus, identity), 
+                     stringsAsFactors=F))
+}
+
+korpus <- f_wczytaj_dane_do_korpusu("coffee_tweets.csv")
+#w tym przypadku wychodzi bardzo brzydki data.frame
+dataframe <- f_przeksztalc_korpus_na_data_frame(korpus)
 
 
+# ------------------------------------------------------------------------------------------------------------------
+# Funkcja konwertujaca macierz na data.frame
+# --- Przyjmuje macierz
+# --- Zwraca data.frame
+# ------------------------------------------------------------------------------------------------------------------
+f_przeksztalc_macierz_na_data_frame <- function(matrix){
+  return (tidy(matrix))
+}
 
-
-
-
-
-
+korpus_nieoczyszczony <- f_wczytaj_dane_do_korpusu("coffee_tweets.csv")
+korpus_oczyszczony <- f_czysc_korpus(korpus_nieoczyszczony)
+macierz_dokument_term_oczyszczona <- DocumentTermMatrix(korpus_oczyszczony)
+data_frame_z_macierzy_dokument_term <- f_przeksztalc_dokument_term_na_data_frame(macierz_dokument_term_oczyszczona)
 
 # ------------------------------------------------------------------------------------------------------------------
 # Funkcja rysujaca 10 najczestszych termow
@@ -315,6 +332,8 @@ korpus_nieoczyszczony <- f_wczytaj_dane_do_korpusu("coffee_tweets.csv")
 korpus_oczyszczony <- f_czysc_korpus(korpus_nieoczyszczony)
 macierz_term_dokument_oczyszczona <- TermDocumentMatrix(korpus_oczyszczony)
 f_rysuj_najczestsze_termy(macierz_term_dokument_oczyszczona)
+
+
 
 
 
@@ -695,3 +714,57 @@ data_norm = f_normalizuj_dane(dane, "mail")
 bayes_k1 = f_klasyfikuj_bayes(data_norm, "mail", 4)
 
 
+# ------------------------------------------------------------------------------------------------------------------
+# Funkcja przeprowadza analize sentymentu
+# --- Przyjmuje wektor 
+# --- Zwraca data.frame z opisem czy slowo w zdaniu bylo pozytywne, negatywne lub neutralne
+# ------------------------------------------------------------------------------------------------------------------
+f_analiza_sentymentu <- function(vector){
+  #można wybrać inne slowniki sentymentu
+  return (sentiment(vector, polarity_dt = lexicon::hash_sentiment_huliu))
+}
+
+kawa <- read.csv2("coffee_tweets.csv")
+coffee_tweets <- kawa$text
+coffee_tweets_vector <- as.character(coffee_tweets)
+f_wyodrebnij_zdania(coffee_tweets_vector)
+coffee_result <- f_analiza_sentymentu(coffee_tweets_vector)
+
+# ------------------------------------------------------------------------------------------------------------------
+# Funkcja przeprowadza analize sentymentu
+# --- Przyjmuje wektor 
+# --- Zwraca liste z wyodrebnionymi zdaniami
+# ------------------------------------------------------------------------------------------------------------------
+f_wyodrebnij_zdania<- function(vector){
+  return (get_sentences(vector))
+}
+
+kawa <- read.csv2("coffee_tweets.csv")
+coffee_tweets <- kawa$text
+coffee_tweets_vector <- as.character(coffee_tweets)
+wyodrebnione_zdania <- f_wyodrebnij_zdania(coffee_tweets_vector)
+
+
+# ------------------------------------------------------------------------------------------------------------------
+# Funkcja rysujaca magiczny wykres analizy sentymentu
+# --- Przyjmuje data.frame z analiza sentymentu
+# ------------------------------------------------------------------------------------------------------------------
+f_rysuj_wykres_analizy_sentymentu <- function(sentiments){
+  moje_kolory <- c("deeppink", "gold", "green3")
+  
+  sentiments %>%
+    mutate(kolor = ifelse(sentiment == 0, "Neutralna", ifelse(sentiment < 0, "Negatywna", "Pozytywna"))) %>%
+    ggplot(aes(element_id, sentiment, fill = kolor, color = kolor)) +
+    geom_bar(stat = "identity") +
+    scale_fill_manual(values = moje_kolory) +
+    scale_color_manual(values = moje_kolory) +
+    labs(x = "Opinie", y = "Ocena sentymentu") +
+    theme_minimal()
+}
+
+kawa <- read.csv2("coffee_tweets.csv")
+coffee_tweets <- kawa$text
+coffee_tweets_vector <- as.character(coffee_tweets)
+f_wyodrebnij_zdania(coffee_tweets_vector)
+coffee_result <- f_analiza_sentymentu(coffee_tweets_vector)
+f_rysuj_wykres_analizy_sentymentu(coffee_result)
