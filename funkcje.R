@@ -743,3 +743,28 @@ kawa <- read.csv2("coffee_tweets.csv")
 coffee_tweets <- kawa$text
 coffee_tweets_vector <- as.character(coffee_tweets)
 wyodrebnione_zdania <- f_wyodrebnij_zdania(coffee_tweets_vector)
+
+
+# ------------------------------------------------------------------------------------------------------------------
+# Funkcja rysujaca magiczny wykres analizy sentymentu
+# --- Przyjmuje data.frame z analiza sentymentu
+# ------------------------------------------------------------------------------------------------------------------
+f_rysuj_wykres_analizy_sentymentu <- function(sentiments){
+  moje_kolory <- c("deeppink", "gold", "green3")
+  
+  sentiments %>%
+    mutate(kolor = ifelse(sentiment == 0, "Neutralna", ifelse(sentiment < 0, "Negatywna", "Pozytywna"))) %>%
+    ggplot(aes(element_id, sentiment, fill = kolor, color = kolor)) +
+    geom_bar(stat = "identity") +
+    scale_fill_manual(values = moje_kolory) +
+    scale_color_manual(values = moje_kolory) +
+    labs(x = "Opinie", y = "Ocena sentymentu") +
+    theme_minimal()
+}
+
+kawa <- read.csv2("coffee_tweets.csv")
+coffee_tweets <- kawa$text
+coffee_tweets_vector <- as.character(coffee_tweets)
+f_wyodrebnij_zdania(coffee_tweets_vector)
+coffee_result <- f_analiza_sentymentu(coffee_tweets_vector)
+f_rysuj_wykres_analizy_sentymentu(coffee_result)
