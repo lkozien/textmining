@@ -1,5 +1,5 @@
 # Przestrze? robocza
-install.packages(c("stringr", "stringi", "tm", "dplyr", "SnowballC", "dendextend", "ca", "factoextra","tidyr", "ggplot2", "kernlab", "caret", "class", "e1071"))
+install.packages(c("stringr", "stringi", "tm", "dplyr", "SnowballC", "dendextend", "ca", "factoextra","tidyr", "ggplot2", "kernlab", "caret", "class", "e1071","tidytext"))
 library("stringr")
 library("stringi")
 library("tm")
@@ -14,6 +14,8 @@ library("kernlab")
 library("caret")
 library("class")
 library("e1071")
+install.packages(c("tidytext"))
+library("tidytext")
 
 setwd("C:/Users/gryff/Documents/R")
 
@@ -256,11 +258,6 @@ macierz_dokument_term_oczyszczona <- f_przeksztalc_wektor_na_macierz_dokument_te
 inspect(macierz_dokument_term_oczyszczona)
 
 
-
-
-
-
-
 # ------------------------------------------------------------------------------------------------------------------
 # Funkcja przeksztalcajaca wektor na macierz Term-Dokument
 # --- Przyjmuje wektor
@@ -281,14 +278,34 @@ wektor_oczyszczony <- f_czysc_wektor(wektor_nieoczyszczony)
 macierz_term_dokument_oczyszczona <- f_przeksztalc_wektor_na_macierz_term_dokument(wektor_oczyszczony)
 inspect(macierz_term_dokument_oczyszczona)
 
+# ------------------------------------------------------------------------------------------------------------------
+# Funkcja konwertujaca korpus na data.frame
+# --- Przyjmuje VCorpus
+# --- Zwraca data.frame
+# ------------------------------------------------------------------------------------------------------------------
+f_przeksztalc_korpus_na_data_frame <- function(corpus){
+  return (data.frame(text=sapply(corpus, identity), 
+                     stringsAsFactors=F))
+}
+
+korpus <- f_wczytaj_dane_do_korpusu("coffee_tweets.csv")
+#w tym przypadku wychodzi bardzo brzydki data.frame
+dataframe <- f_przeksztalc_korpus_na_data_frame(korpus)
 
 
+# ------------------------------------------------------------------------------------------------------------------
+# Funkcja konwertujaca macierz na data.frame
+# --- Przyjmuje macierz
+# --- Zwraca data.frame
+# ------------------------------------------------------------------------------------------------------------------
+f_przeksztalc_macierz_na_data_frame <- function(matrix){
+  return (tidy(matrix))
+}
 
-
-
-
-
-
+korpus_nieoczyszczony <- f_wczytaj_dane_do_korpusu("coffee_tweets.csv")
+korpus_oczyszczony <- f_czysc_korpus(korpus_nieoczyszczony)
+macierz_dokument_term_oczyszczona <- DocumentTermMatrix(korpus_oczyszczony)
+data_frame_z_macierzy_dokument_term <- f_przeksztalc_dokument_term_na_data_frame(macierz_dokument_term_oczyszczona)
 
 # ------------------------------------------------------------------------------------------------------------------
 # Funkcja rysujaca 10 najczestszych termow
@@ -315,6 +332,8 @@ korpus_nieoczyszczony <- f_wczytaj_dane_do_korpusu("coffee_tweets.csv")
 korpus_oczyszczony <- f_czysc_korpus(korpus_nieoczyszczony)
 macierz_term_dokument_oczyszczona <- TermDocumentMatrix(korpus_oczyszczony)
 f_rysuj_najczestsze_termy(macierz_term_dokument_oczyszczona)
+
+
 
 
 
