@@ -1,5 +1,5 @@
 # Przestrze? robocza
-install.packages(c("stringr", "stringi", "tm", "dplyr", "SnowballC", "dendextend", "ca", "factoextra","tidyr", "ggplot2", "kernlab", "caret", "class", "e1071","tidytext"))
+install.packages(c("stringr", "stringi", "tm", "dplyr", "SnowballC", "dendextend", "ca", "factoextra","tidyr", "ggplot2", "kernlab", "caret", "class", "e1071","tidytext","sentimentr"))
 library("stringr")
 library("stringi")
 library("tm")
@@ -14,8 +14,8 @@ library("kernlab")
 library("caret")
 library("class")
 library("e1071")
-install.packages(c("tidytext"))
 library("tidytext")
+library("sentimentr")
 
 setwd("C:/Users/gryff/Documents/R")
 
@@ -714,3 +714,32 @@ data_norm = f_normalizuj_dane(dane, "mail")
 bayes_k1 = f_klasyfikuj_bayes(data_norm, "mail", 4)
 
 
+# ------------------------------------------------------------------------------------------------------------------
+# Funkcja przeprowadza analize sentymentu
+# --- Przyjmuje wektor 
+# --- Zwraca data.frame z opisem czy slowo w zdaniu bylo pozytywne, negatywne lub neutralne
+# ------------------------------------------------------------------------------------------------------------------
+f_analiza_sentymentu <- function(vector){
+  #można wybrać inne slowniki sentymentu
+  return (sentiment(vector, polarity_dt = lexicon::hash_sentiment_huliu))
+}
+
+kawa <- read.csv2("coffee_tweets.csv")
+coffee_tweets <- kawa$text
+coffee_tweets_vector <- as.character(coffee_tweets)
+f_wyodrebnij_zdania(coffee_tweets_vector)
+coffee_result <- f_analiza_sentymentu(coffee_tweets_vector)
+
+# ------------------------------------------------------------------------------------------------------------------
+# Funkcja przeprowadza analize sentymentu
+# --- Przyjmuje wektor 
+# --- Zwraca liste z wyodrebnionymi zdaniami
+# ------------------------------------------------------------------------------------------------------------------
+f_wyodrebnij_zdania<- function(vector){
+  return (get_sentences(vector))
+}
+
+kawa <- read.csv2("coffee_tweets.csv")
+coffee_tweets <- kawa$text
+coffee_tweets_vector <- as.character(coffee_tweets)
+wyodrebnione_zdania <- f_wyodrebnij_zdania(coffee_tweets_vector)
