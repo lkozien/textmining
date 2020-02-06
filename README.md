@@ -11,12 +11,12 @@ Dla termow trzeba pamietac, zeby macierz Term-Dokument miala parametr control.
 
 ## TODO
 - [ ] Konwerter korpus -> wektor
-- [ ] Konwerter korpus -> data.frame
-- [ ] Konwerter macierz dokument-term -> data.frame
-- [ ] Konwerter macierz term-dokument -> data.frame
+- [X] Konwerter korpus -> data.frame
+- [X] Konwerter macierz dokument-term -> data.frame
+- [X] Konwerter macierz term-dokument -> data.frame
 - [X] Laborki 5 - Łukasz
-- [ ] Laborki 6
-- [ ] Funkcje do wykresów, które można wymyślić
+- [X] Laborki 6
+- [X] Funkcje do wykresów, które można wymyślić
 
 ## Funkcje do wczytywania:
 
@@ -176,6 +176,22 @@ nieznormalizowane_dane <- data.frame(hello = c(10,1,213,1231,511,123,161,271,112
 znormalizowany_data_frame = f_normalizuj_dane(nieznormalizowane_dane, "mail")
 ```
 
+### Funkcja wyciągająca zdania z tekstu
+
+```R
+f_wyodrebnij_zdania<- function(vector)
+```
+* Przyjmuje wektor 
+* Zwraca liste z wyodrebnionymi zdaniami
+
+#### Przykład użycia:
+```R
+kawa <- read.csv2("coffee_tweets.csv")
+coffee_tweets <- kawa$text
+coffee_tweets_vector <- as.character(coffee_tweets)
+wyodrebnione_zdania <- f_wyodrebnij_zdania(coffee_tweets_vector)
+```
+
 ## Funkcje rysujące:
 
 ### Funkcja rysujaca barplot z 10 najczestszymi termami
@@ -209,6 +225,22 @@ macierz_term_dokument_oczyszczona <- f_przeksztalc_wektor_na_macierz_term_dokume
 f_rysuj_dendrogram(matrix, "euclidean") # euclidean, manhattan, cosine, jaccard
 ```
 
+### Funkcja rysująca wykres z analizy sentymentu
+```R
+f_rysuj_wykres_analizy_sentymentu <- function(sentiments)
+```
+* Przyjmuje data.frame z analiza sentymentu
+
+#### Przykład użycia:
+```R
+kawa <- read.csv2("coffee_tweets.csv")
+coffee_tweets <- kawa$text
+coffee_tweets_vector <- as.character(coffee_tweets)
+f_wyodrebnij_zdania(coffee_tweets_vector)
+coffee_result <- f_analiza_sentymentu(coffee_tweets_vector)
+f_rysuj_wykres_analizy_sentymentu(coffee_result)
+```
+
 ## Funkcje do analizy:
 
 ### Funkcja wykonująca analizę korespondencji
@@ -228,6 +260,21 @@ przyslowia_dokument_term <- f_przeksztalc_wektor_na_macierz_dokument_term(przysl
 wynik <- f_analiza_korespondencji(przyslowia_dokument_term)
 ```
 
+### Funkcja wykonująca analizę sentymentu
+```R
+f_analiza_sentymentu <- function(vector)
+```
+* Przyjmuje wektor 
+* Zwraca data.frame z opisem czy slowo w zdaniu bylo pozytywne, negatywne lub neutralne
+
+#### Przykład użycia:
+```R
+kawa <- read.csv2("coffee_tweets.csv")
+coffee_tweets <- kawa$text
+coffee_tweets_vector <- as.character(coffee_tweets)
+f_wyodrebnij_zdania(coffee_tweets_vector)
+coffee_result <- f_analiza_sentymentu(coffee_tweets_vector)
+```
 
 ### Funkcja obliczająca rzadkość termów w macierzy Term-Dokument
 ```R
@@ -326,6 +373,35 @@ przyslowia_wektor <- f_wczytaj_dane_do_wektora_z_txt("przyslowia.txt")
 czyste_przyslowia <- f_czysc_wektor(przyslowia_wektor, c("czego", "czy", "i", "tego", "w", "z"))
 przyslowia_lemy <- f_lematyzacja_wektora_zdan(czyste_przyslowia, "slownik.txt")
 przyslowia_dokument_term <- f_przeksztalc_wektor_na_macierz_dokument_term(przyslowia_lemy)
+```
+
+### Funkcja przeksztalcajaca korpus na data.frame
+```R
+f_przeksztalc_korpus_na_data_frame <- function(corpus)
+```
+* Przyjmuje VCorpus
+* Zwraca data.frame
+
+#### Przykład użycia:
+```R
+korpus <- f_wczytaj_dane_do_korpusu("coffee_tweets.csv")
+#w tym przypadku wychodzi bardzo brzydki data.frame
+dataframe <- f_przeksztalc_korpus_na_data_frame(korpus)
+```
+
+### Funkcja przeksztalcajaca macierz na data.frame
+```R
+f_przeksztalc_macierz_na_data_frame <- function(matrix)
+```
+* Przyjmuje macierz
+* Zwraca data.frame
+
+#### Przykład użycia:
+```R
+korpus_nieoczyszczony <- f_wczytaj_dane_do_korpusu("coffee_tweets.csv")
+korpus_oczyszczony <- f_czysc_korpus(korpus_nieoczyszczony)
+macierz_dokument_term_oczyszczona <- DocumentTermMatrix(korpus_oczyszczony)
+data_frame_z_macierzy_dokument_term <- f_przeksztalc_dokument_term_na_data_frame(macierz_dokument_term_oczyszczona)
 ```
 
 ## Funkcje klasyfikujące:
