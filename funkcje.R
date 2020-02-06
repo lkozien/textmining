@@ -731,7 +731,7 @@ f_wyodrebnij_zdania(coffee_tweets_vector)
 coffee_result <- f_analiza_sentymentu(coffee_tweets_vector)
 
 # ------------------------------------------------------------------------------------------------------------------
-# Funkcja przeprowadza analize sentymentu
+# Funkcja wyodrebnia zdania z tekstu
 # --- Przyjmuje wektor 
 # --- Zwraca liste z wyodrebnionymi zdaniami
 # ------------------------------------------------------------------------------------------------------------------
