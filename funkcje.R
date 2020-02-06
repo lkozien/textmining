@@ -1,5 +1,5 @@
-# Przestrze? robocza
-install.packages(c("stringr", "stringi", "tm", "dplyr", "SnowballC", "dendextend", "ca", "factoextra","tidyr", "ggplot2", "kernlab", "caret", "class", "e1071"))
+# Przestrze� robocza
+install.packages(c("stringr", "stringi", "tm", "dplyr", "SnowballC", "dendextend", "ca", "factoextra", "wordcloud", "sentimentr", "eply"))
 library("stringr")
 library("stringi")
 library("tm")
@@ -8,17 +8,15 @@ library("SnowballC")
 library("dendextend")
 library("ca")
 library("factoextra")
-library("tidyr")
-library("ggplot2")
-library("kernlab")
-library("caret")
-library("class")
-library("e1071")
+library("wordcloud")
+library("sentimentr")
+library("eply")
 
-setwd("C:/Users/gryff/Documents/R")
+setwd("C:/Users/Anita/Documents/analiza danych i text mining/textmining")
 
 # ------------------------------------------------------------------------------------------------------------------
 # Funkcja wczytujaca dane z pliku do macierzy Term-Dokument
+# --- Przyjmuje sciezke do pliku
 # --- Zwraca macierz Term-Dokument
 # --- Domyslnie wczytuje 20 wierszy, szukajac tekstu w kolumnie 2
 # --- Mozna przerobic, zeby zwracala wektor lub korpus, wystarczy od tylu usuwac przeksztalcenia
@@ -64,6 +62,7 @@ inspect(macierz)
 
 # ------------------------------------------------------------------------------------------------------------------
 # Funkcja wczytujaca dane z pliku do Korpusu
+# --- Przyjmuje sciezke do pliku
 # --- Zwraca korpus
 # --- Domyslnie wczytuje 20 wierszy, szukajac tekstu w kolumnie 2
 # --- Mozna przerobic, zeby zwracala wektor
@@ -96,6 +95,40 @@ korpus <- f_wczytaj_dane_do_korpusu("coffee_tweets.csv")
 inspect(korpus)
 
 
+
+
+
+
+
+# ------------------------------------------------------------------------------------------------------------------
+# Funkcja wczytujaca dane z plikow z folderu, do Korpusu
+# --- Przyjmuje sciezke do folderu
+# --- Zwraca korpus
+# --- WAZNE - Folder z plikami musi znajdowac sie w przestrzeni roboczej
+# ------------------------------------------------------------------------------------------------------------------
+f_wczytaj_dane_do_korpusu_z_wielku_plikow <- function(sciezka_do_folderu = ""){
+  
+  # Dodanie / przed sciezka/nazwa folderu
+  sciezka <- paste0("/",sciezka_do_folderu)
+  
+  # Sklejenie sciezki przestrzeni roboczej z nazwa folderu
+  sciezka_all <- paste0(getwd(), sciezka)
+  
+  # Odczyt danych i zmiana kodowania
+  # windows-1250, UTF-8 itd
+  tekst_zrodlo <- DirSource(sciezka_all, encoding = "UTF-8", mode = "text")
+  
+  # Wrzucenie danych do korpusu
+  tekst_korpus <- VCorpus(tekst_zrodlo)
+}
+
+korpus <- f_wczytaj_dane_do_korpusu_z_wielku_plikow("hrabia") #"C:/Users/gryff/Documents/R/hrabia"
+inspect(korpus)
+
+
+hrabia_korpus_nieoczyszczony <- f_wczytaj_dane_do_korpusu_z_wielku_plikow("hrabia") #"C:/Users/gryff/Documents/R/hrabia"
+inspect(hrabia_korpus_nieoczyszczony)
+hrabia_korpus_nieoczyszczony[[117]]$content
 
 
 
@@ -153,9 +186,19 @@ wektor <- f_wczytaj_dane_do_wektora_z_txt("przyslowia.txt")
 # --- Przyjmuje korpus
 # --- Zwraca korpus
 # ------------------------------------------------------------------------------------------------------------------
-f_czysc_korpus <- function(korpus, slowa = ""){
+f_czysc_korpus <- function(korpus, slowa = "", znaki=""){
   # korpus <- tm_map(korpus, removeWords, "@") mozna dodac swoje znaki konkretne
-  # korpus <- tm_map(korpus, content_transformer(function(x) str_replace_all(x, "-", ""))) #mozliwe, ze trzeba usunac jakies znaki specjalne
+  #korpus <- tm_map(korpus, content_transformer(function(x) str_replace_all(x, znaki, ""))) #mozliwe, ze trzeba usunac jakies znaki specjalne
+  # Powyzsze cos zle usuwa znaki, ktore podane sa jako wektor, wiec lepiej kazdy osobno usuwac, jak ponizej
+  
+  korpus <- tm_map(korpus, content_transformer(function(x) str_replace_all(x, "�", "")))
+  korpus <- tm_map(korpus, content_transformer(function(x) str_replace_all(x, "�", "")))
+  korpus <- tm_map(korpus, content_transformer(function(x) str_replace_all(x, "-", "")))
+  korpus <- tm_map(korpus, content_transformer(function(x) str_replace_all(x, "'", "")))
+  korpus <- tm_map(korpus, content_transformer(function(x) str_replace_all(x, "�", "")))
+  korpus <- tm_map(korpus, content_transformer(function(x) str_replace_all(x, "\n", "")))
+  korpus <- tm_map(korpus, content_transformer(function(x) str_replace_all(x, "\r", "")))
+  
   
   # Zamiane duzych znakow na male
   korpus <- tm_map(korpus, content_transformer(tolower))
@@ -174,6 +217,12 @@ f_czysc_korpus <- function(korpus, slowa = ""){
   
   # Usuniecie bialych znakow
   korpus <- tm_map(korpus, stripWhitespace)
+  
+  # Usuwanie spacji z poczatku i konca stringow
+  korpus <- tm_map(korpus, content_transformer(function(x) trimws(x)))
+  
+  # Usuwanie pustych linii
+  korpus <- tm_map(korpus, content_transformer(function(x) stri_remove_empty(x, na_empty = FALSE)))
   
   # Czyszczenie bialych znakow z poczatku i konca <- tutaj NIE WOLNO tego uzywac, moze dla wektora to dziala, ale tutaj rozpierdala wszystko w drobny mak
   #korpus <- tm_map(korpus, str_trim)
@@ -200,7 +249,7 @@ czysty_korpus[[20]]
 # ------------------------------------------------------------------------------------------------------------------
 f_czysc_wektor <- function(wektor, slowa=""){
   # wektor <- removeWords(wektor, "@") #mozna dodac swoje znaki konkretne
-  wektor <- str_replace(wektor, "?", "") #mozliwe, ze trzeba usunac jakies znaki specjalne
+  wektor <- str_replace(wektor, "�", "") #mozliwe, ze trzeba usunac jakies znaki specjalne
   
   # Zamiane duzych znakow na male
   wektor <- tolower(wektor)
@@ -301,10 +350,10 @@ f_rysuj_najczestsze_termy <- function(macierz_term_dokument){
   # Konwersja do macierzy
   matryca <- as.matrix(macierz_term_dokument)
   
-  # Obliczanie liczebno?ci term?w
+  # Obliczanie liczebno�ci term�w
   ilosc_termow <- rowSums(matryca)
   
-  # Sortowanie wed?ug liczebno?ci
+  # Sortowanie wed�ug liczebno�ci
   ilosc_termow <- sort(ilosc_termow, decreasing = TRUE)
   
   # Generowanie wykresu
@@ -477,7 +526,7 @@ wektor_lemy <- f_lematyzacja_wektora_zdan(wektor_czysty, "slownik2.txt")
 # ------------------------------------------------------------------------------------------------------------------
 f_oblicz_odleglosci_miedzy_dokumentami<- function(macierz_dokument_term){
 
-  # Obliczenie odleg?o?ci pomi?dzy dokumentami
+  # Obliczenie odleg�o�ci pomi�dzy dokumentami
   
   dokumenty_data_matrix <- as.matrix(macierz_dokument_term)
   odl <- dist(dokumenty_data_matrix) # domyslnie uzyta jest miara euklidesowa (method = "euclidean")
@@ -493,6 +542,12 @@ odleglosc
 # Grupowanie hierarchiczne
 hg <- hclust(odleglosc)
 plot(hg)
+
+
+
+
+
+
 
 
 # ------------------------------------------------------------------------------------------------------------------
@@ -520,7 +575,7 @@ macierz_dokument_term <- f_przeksztalc_wektor_na_macierz_dokument_term(wektor_le
 wynik <- f_normalizuj_i_grupuj_wektory_dokumentow(macierz_dokument_term, 3)
 wynik
 
-# dzia?ania
+# dzia�ania
 
 # Sortowanie kolumn
 sort(wynik$centers[1,], decreasing = T)
@@ -589,109 +644,27 @@ fviz_ca(wynik, repel = TRUE)
 fviz_ca(wynik, axes = c(1, 4), repel = TRUE)
 
 
+
+
+
+
+
+
+
 # ------------------------------------------------------------------------------------------------------------------
-# Funkcja przeprowadza normalizacje (min-max ?)
-# --- Przyjmuje wektor
-# --- Zwraca znormalizowany data.frame
+# Funkcja ma za zadanie wziac kazdy dataset z korpusu i wszystkie stringi nalezace
+# --- do tego datasetu skleic w jeden, w celu latwiejszej analizy
+# --- Przyjmuje nazwe korpusu i ilosc datasetow w nim
+# --- Zwraca korpus z
 # ------------------------------------------------------------------------------------------------------------------
-f_normalizuj <- function(x){
-  (x-min(x))/(max(x)-min(x))
+f_przeksztalc_wektory_datasetu_korpusu_do_pojedynczych_wektorow<- function(korpus, ilosc_datasetow){
+  for (i in 1:ilosc_datasetow){
+    wszystkie_slowa <- unlist(strsplit(korpus[[i]]$content, " "))
+    korpus[[i]]$content <- paste(wszystkie_slowa, collapse=' ')
+  }
+  return(korpus)
 }
 
-znormalizowane_dane <- f_normalizuj(c(10000,13121,512,100,511,2220,511,20,11,311))
-
-# ------------------------------------------------------------------------------------------------------------------
-# Funkcja przeprowadza normalizacje (min-max ?) bez kolumny okreslajacej klase
-# --- Przyjmuje data.frame i kolumne z wynikiem
-# --- Zwraca znormalizowany data.frame
-# ------------------------------------------------------------------------------------------------------------------
-f_normalizuj_dane <- function(x, column){
-  
-  #chcemy normalizowac (wartosci 0-1) wartosci wszystkie oprocz kolumny wynikowej, 
-  #wiec tworzymy data.frame bez kolumny wynikowej i normalizujemy kazda z nich
-  tmp <- x
-  result_column <- x[,column]
-  data_norm <- tmp %>% 
-    select(-column) %>% 
-    mutate_all(funs(f_normalizuj(.)))
-  
-  data_norm[column] <- result_column
-  #zwracamy data.frame zawierajacy kolumny znormalizowane wraz z kolumna wynikowa
-  return (data_norm)
-
-}
-
-nieznormalizowane_dane <- data.frame(hello = c(10,1,213,1231,511,123,161,271,1123,351),
-                   business = c(0,1,3,0,1,2,0,1,2,3),
-                   replica = c(3,2,1,0,0,0,1,0,3,0),
-                   mail = c("spam","spam","ham","ham","ham","ham","spam","ham","spam","ham"))
-
-znormalizowany_data_frame = f_normalizuj_dane(nieznormalizowane_dane, "mail")
-
-
-# ------------------------------------------------------------------------------------------------------------------
-# Funkcja przeprowadza klasyfikację metodą KNN
-# --- Przyjmuje data.frame, ilość grup na którą powinno podzielić, kolumnę z wynikami i liczbę kolumn
-# --- Zwraca macierz błędów 
-# --- Macierz musi byc oczyszczona
-# ------------------------------------------------------------------------------------------------------------------
-f_klasyfikuj_knn <- function(data, k, result_column_name, columns){
-  # Podzielenie na zbior testowy i uczacy, 
-  # Pierwszy argument to kolumna po której ma dzielic (aby bylo proporcjonalnie wszystkich klas)
-  # p - podzial uczacy/testowy, tutaj 0,7 zbioru uczacy, 0,3 testowy
-  wUczacym <- createDataPartition(data[,result_column_name], p = 0.7, list = FALSE)
-  Uczacy <- data[wUczacym,]
-  Testowy <- data[-wUczacym,]
-  
-  # Utworzenie modelu
-  modelSpamKnn <- knn(train = Uczacy[,-columns],
-                      test = Testowy[,-columns],
-                      cl = Uczacy[,columns],
-                      k = k) 
-  
-  # Utworzenie macierzy błędów knn
-  return (confusionMatrix(modelSpamKnn, Testowy[,result_column_name]))
-}
-
-dane <- data.frame(hello = c(1,1,2,1,1,0,1,2,1,3),
-                   business = c(0,1,3,0,1,2,0,1,2,3),
-                   replica = c(3,2,1,0,0,0,1,0,3,0),
-                   mail = c("spam","spam","ham","ham","ham","ham","spam","ham","spam","ham"))
-
-data_norm = f_normalizuj_dane(dane, "mail")
-knn_k1 = f_klasyfikuj_knn(data_norm, 1, "mail", 4)
-
-
-# ------------------------------------------------------------------------------------------------------------------
-# Funkcja przeprowadza klasyfikację metodą Bayes
-# --- Przyjmuje data.frame, kolumnę z wynikami i liczbę kolumn
-# --- Zwraca macierz błędów 
-# --- Macierz musi byc oczyszczona
-# ------------------------------------------------------------------------------------------------------------------
-f_klasyfikuj_bayes <- function(data, result_column_name, columns){
-  # Podzielenie na zbior testowy i uczacy, 
-  # Pierwszy argument to kolumna po której ma dzielic (aby bylo proporcjonalnie wszystkich klas)
-  # p - podzial uczacy/testowy, tutaj 0,7 zbioru uczacy, 0,3 testowy
-  wUczacym <- createDataPartition(data[,result_column_name], p = 0.7, list = FALSE)
-  Uczacy <- data[wUczacym,]
-  Testowy <- data[-wUczacym,]
-  
-  #tworzenie modelu -> zamiast mail powinna być nazwa kolumny zawierająca klase
-  #nie umiałem tego ogarnąc z parametru result_column_name, ale przekazuje sie to samo tylko nie jako string
-  model <- naiveBayes(mail ~ ., data = Uczacy)
-  
-  przewidywanie <- predict(model, Testowy[, -columns])
-  
-  return (confusionMatrix(przewidywanie, Testowy[,result_column_name]))
-}
-
-
-dane <- data.frame(hello = c(1,1,2,1,1,0,1,2,1,3),
-                   business = c(0,1,3,0,1,2,0,1,2,3),
-                   replica = c(3,2,1,0,0,0,1,0,3,0),
-                   mail = c("spam","spam","ham","ham","ham","ham","spam","ham","spam","ham"))
-
-data_norm = f_normalizuj_dane(dane, "mail")
-bayes_k1 = f_klasyfikuj_bayes(data_norm, "mail", 4)
-
-
+hrabia_korpus_nieoczyszczony <- f_wczytaj_dane_do_korpusu_z_wielku_plikow("hrabia") #"C:/Users/gryff/Documents/R/hrabia"
+hrabia_korpus_z_ulozonymi_datasetami <- f_przeksztalc_wektory_datasetu_korpusu_do_pojedynczych_wektorow(hrabia_korpus_nieoczyszczony, 117)
+hrabia_korpus_z_ulozonymi_datasetami[[117]]$content
