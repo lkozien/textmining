@@ -199,11 +199,12 @@ f_czysc_korpus <- function(korpus, slowa = "", znaki=""){
   #korpus <- tm_map(korpus, content_transformer(function(x) str_replace_all(x, znaki, ""))) #mozliwe, ze trzeba usunac jakies znaki specjalne
   # Powyzsze cos zle usuwa znaki, ktore podane sa jako wektor, wiec lepiej kazdy osobno usuwac, jak ponizej
   
-  korpus <- tm_map(korpus, content_transformer(function(x) str_replace_all(x, "�", "")))
-  korpus <- tm_map(korpus, content_transformer(function(x) str_replace_all(x, "�", "")))
+  korpus <- tm_map(korpus, content_transformer(function(x) str_replace_all(x, "�", "")))
+  korpus <- tm_map(korpus, content_transformer(function(x) str_replace_all(x, "�", "")))
   korpus <- tm_map(korpus, content_transformer(function(x) str_replace_all(x, "-", "")))
   korpus <- tm_map(korpus, content_transformer(function(x) str_replace_all(x, "'", "")))
-  korpus <- tm_map(korpus, content_transformer(function(x) str_replace_all(x, "�", "")))
+  korpus <- tm_map(korpus, content_transformer(function(x) str_replace_all(x, "�", "")))
+  korpus <- tm_map(korpus, content_transformer(function(x) str_replace_all(x, "�", "")))
   korpus <- tm_map(korpus, content_transformer(function(x) str_replace_all(x, "\n", "")))
   korpus <- tm_map(korpus, content_transformer(function(x) str_replace_all(x, "\r", "")))
   
@@ -241,8 +242,7 @@ korpus <- f_wczytaj_dane_do_korpusu("coffee_tweets.csv")
 # Zeby usunac kilka dodatkowych slow jednoczesnia, po korpus uzyc c("slowo1", "slowo2", ...)
 czysty_korpus <- f_czysc_korpus(korpus)
 inspect(czysty_korpus)
-warnings()
-czysty_korpus[[20]]
+czysty_korpus[[20]]$content
 
 
 
@@ -257,7 +257,16 @@ czysty_korpus[[20]]
 # ------------------------------------------------------------------------------------------------------------------
 f_czysc_wektor <- function(wektor, slowa=""){
   # wektor <- removeWords(wektor, "@") #mozna dodac swoje znaki konkretne
-  wektor <- str_replace(wektor, "?", "") #mozliwe, ze trzeba usunac jakies znaki specjalne
+  # wektor <- str_replace_all(wektor, "?", "") #mozliwe, ze trzeba usunac jakies znaki specjalne
+  
+  wektor <- str_replace_all(wektor, "�", "")
+  wektor <- str_replace_all(wektor, "�", "")
+  wektor <- str_replace_all(wektor, "-", "")
+  wektor <- str_replace_all(wektor, "'", "")
+  wektor <- str_replace_all(wektor, "�", "")
+  wektor <- str_replace_all(wektor, "�", "")
+  wektor <- str_replace_all(wektor, "\n", "")
+  wektor <- str_replace_all(wektor, "\r", "")
   
   # Zamiane duzych znakow na male
   wektor <- tolower(wektor)
@@ -313,6 +322,16 @@ macierz_dokument_term_oczyszczona <- f_przeksztalc_wektor_na_macierz_dokument_te
 inspect(macierz_dokument_term_oczyszczona)
 
 
+
+
+
+
+
+
+
+
+
+
 # ------------------------------------------------------------------------------------------------------------------
 # Funkcja przeksztalcajaca wektor na macierz Term-Dokument
 # --- Przyjmuje wektor
@@ -333,6 +352,15 @@ wektor_oczyszczony <- f_czysc_wektor(wektor_nieoczyszczony)
 macierz_term_dokument_oczyszczona <- f_przeksztalc_wektor_na_macierz_term_dokument(wektor_oczyszczony)
 inspect(macierz_term_dokument_oczyszczona)
 
+
+
+
+
+
+
+
+
+
 # ------------------------------------------------------------------------------------------------------------------
 # Funkcja konwertujaca korpus na data.frame
 # --- Przyjmuje VCorpus
@@ -345,7 +373,11 @@ f_przeksztalc_korpus_na_data_frame <- function(corpus){
 
 korpus <- f_wczytaj_dane_do_korpusu("coffee_tweets.csv")
 #w tym przypadku wychodzi bardzo brzydki data.frame
-dataframe <- f_przeksztalc_korpus_na_data_frame(korpus)
+dataframe <- f_przeksztalc_korpus_na_data_frame(korpus$)
+
+
+
+
 
 
 
@@ -363,7 +395,17 @@ f_przeksztalc_macierz_na_data_frame <- function(matrix){
 korpus_nieoczyszczony <- f_wczytaj_dane_do_korpusu("coffee_tweets.csv")
 korpus_oczyszczony <- f_czysc_korpus(korpus_nieoczyszczony)
 macierz_dokument_term_oczyszczona <- DocumentTermMatrix(korpus_oczyszczony)
-data_frame_z_macierzy_dokument_term <- f_przeksztalc_dokument_term_na_data_frame(macierz_dokument_term_oczyszczona)
+data_frame_z_macierzy_dokument_term <- f_przeksztalc_macierz_na_data_frame(macierz_dokument_term_oczyszczona)
+
+
+
+
+
+
+
+
+
+
 
 # ------------------------------------------------------------------------------------------------------------------
 # Funkcja rysujaca 10 najczestszych termow
@@ -693,6 +735,20 @@ f_przeksztalc_wektory_datasetu_korpusu_do_pojedynczych_wektorow<- function(korpu
   return(korpus)
 }
 
+hrabia_korpus_nieoczyszczony_oryginal <- f_wczytaj_dane_do_korpusu_z_wielku_plikow("hrabia") #"C:/Users/gryff/Documents/R/hrabia"
+inspect(hrabia_korpus_nieoczyszczony_oryginal)
+hrabia_korpus_nieoczyszczony_oryginal[[117]]$content
+
+hrabia_korpus_z_ulozonymi_datasetami <- f_przeksztalc_wektory_datasetu_korpusu_do_pojedynczych_wektorow(hrabia_korpus_nieoczyszczony_oryginal, 117)
+hrabia_korpus_z_ulozonymi_datasetami[[117]]$content
+
+
+
+
+
+
+
+
 # ------------------------------------------------------------------------------------------------------------------
 # Funkcja przeprowadza normalizacje (min-max ?)
 # --- Przyjmuje wektor
@@ -703,6 +759,15 @@ f_normalizuj <- function(x){
 }
 
 znormalizowane_dane <- f_normalizuj(c(10000,13121,512,100,511,2220,511,20,11,311))
+
+
+
+
+
+
+
+
+
 
 # ------------------------------------------------------------------------------------------------------------------
 # Funkcja przeprowadza normalizacje (min-max ?) bez kolumny okreslajacej klase
@@ -733,6 +798,14 @@ nieznormalizowane_dane <- data.frame(hello = c(10,1,213,1231,511,123,161,271,112
 znormalizowany_data_frame = f_normalizuj_dane(nieznormalizowane_dane, "mail")
 
 
+
+
+
+
+
+
+
+
 # ------------------------------------------------------------------------------------------------------------------
 # Funkcja przeprowadza klasyfikację metodą KNN
 # --- Przyjmuje data.frame, ilość grup na którą powinno podzielić, kolumnę z wynikami i liczbę kolumn
@@ -748,10 +821,17 @@ f_klasyfikuj_knn <- function(data, k, result_column_name, columns){
   Testowy <- data[-wUczacym,]
   
   # Utworzenie modelu
+  #1 linijka nie bierz kolumny 1 i 4 pod uwage, 2 - utworzenie zboru testowego, 3 - utworzenie klasy, 4 - ilu sasiadow ma brac pod uwage
   modelSpamKnn <- knn(train = Uczacy[,-columns],
                       test = Testowy[,-columns],
                       cl = Uczacy[,columns],
                       k = k) 
+  
+  # modelSpamKnn -> # interpretacja 1 i 2 obiekt zostal zakwalifikowany jako spam, 3 nie spam itd
+  
+  # Zdolnosc do przewidywania klasy pozytywnej (sensivity) i negatywnej (specifity)
+  # confusionMatrix(modelSpamKnn, dane$mail)
+  # mean(modelSpamKnn == dane$mail) # obliczenie dokladnosci, mozna sobie tak obliczyc lub z poprzedniego Accuracy
   
   # Utworzenie macierzy błędów knn
   return (confusionMatrix(modelSpamKnn, Testowy[,result_column_name]))
@@ -764,7 +844,30 @@ dane <- data.frame(hello = c(1,1,2,1,1,0,1,2,1,3),
                    mail = c("spam","spam","ham","ham","ham","ham","spam","ham","spam","ham"))
 
 data_norm = f_normalizuj_dane(dane, "mail")
-knn_k1 = f_klasyfikuj_knn(data_norm, 1, "mail", 4)
+knn_k1 = f_klasyfikuj_knn(data_norm, 3, "mail", 4)
+
+# Nie pamietam co to
+wynik <- dane %>% 
+  group_by(mail) %>% 
+  summarise_all(funs(mean(.), sd(.))) %>% 
+  select(mail, starts_with("hello"), starts_with("business"), starts_with("replica"))
+
+wynik
+
+# Wykres dla klas
+dane %>% 
+  gather(termy, wagi, -mail) %>% 
+  ggplot(aes(x = wagi, fill = termy)) +
+  geom_density(alpha = 0.5) +
+  facet_wrap(~ mail) +
+  theme_bw()
+
+
+
+
+
+
+
 
 
 # ------------------------------------------------------------------------------------------------------------------
@@ -783,7 +886,11 @@ f_klasyfikuj_bayes <- function(data, result_column_name, columns){
   
   #tworzenie modelu -> zamiast mail powinna być nazwa kolumny zawierająca klase
   #nie umiałem tego ogarnąc z parametru result_column_name, ale przekazuje sie to samo tylko nie jako string
+  # to samo mozna zapisac tak: modelSpamBay <- naiveBayes(mail ~ hello + business + replica, data = dane)
   model <- naiveBayes(mail ~ ., data = Uczacy)
+  
+  # 1 kolumna to srednia, druga odchylenie standardowe
+  # modelSpamBay
   
   przewidywanie <- predict(model, Testowy[, -columns])
   
@@ -798,6 +905,25 @@ dane <- data.frame(hello = c(1,1,2,1,1,0,1,2,1,3),
 
 data_norm = f_normalizuj_dane(dane, "mail")
 bayes_k1 = f_klasyfikuj_bayes(data_norm, "mail", 4)
+
+
+## ---- Ponizsze przyklady dotycza tego co sie dzieje w srodku funkcji
+## funkcja predict - bierze wskazany klasyfikator, testuje go na zbiorze testowym, ostatni parametr opcjonalny - zmieniamy tradycyjny typ wyniku na taki ktory wskaze konkretne wyniki apostriori
+#round(predict(modelSpamBay, dane[, -4], type = "raw"), 4)
+
+## do ktorej klasy ktory dokument zostal zapisany
+#predict(modelSpamBay, dane[, -4], type = "class")
+
+#spam_przewid <- predict(modelSpamBay, dane[, -4])
+## jako, ze specifity jest wieksze od sensivity to przewiduje on lepiej spam niz normalne maile
+#confusionMatrix(spam_przewid, dane$mail)
+
+
+
+
+
+
+
 
 
 # ------------------------------------------------------------------------------------------------------------------
@@ -816,6 +942,15 @@ coffee_tweets_vector <- as.character(coffee_tweets)
 f_wyodrebnij_zdania(coffee_tweets_vector)
 coffee_result <- f_analiza_sentymentu(coffee_tweets_vector)
 
+
+
+
+
+
+
+
+
+
 # ------------------------------------------------------------------------------------------------------------------
 # Funkcja wyodrebnia zdania z tekstu
 # --- Przyjmuje wektor 
@@ -829,6 +964,13 @@ kawa <- read.csv2("coffee_tweets.csv")
 coffee_tweets <- kawa$text
 coffee_tweets_vector <- as.character(coffee_tweets)
 wyodrebnione_zdania <- f_wyodrebnij_zdania(coffee_tweets_vector)
+
+
+
+
+
+
+
 
 
 # ------------------------------------------------------------------------------------------------------------------
