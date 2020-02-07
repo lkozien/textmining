@@ -15,7 +15,6 @@ library("caret")
 library("class")
 library("e1071")
 library("tidytext")
-library("sentimentr")
 library("wordcloud")
 library("sentimentr")
 library("eply")
@@ -373,7 +372,7 @@ f_przeksztalc_korpus_na_data_frame <- function(corpus){
 
 korpus <- f_wczytaj_dane_do_korpusu("coffee_tweets.csv")
 #w tym przypadku wychodzi bardzo brzydki data.frame
-dataframe <- f_przeksztalc_korpus_na_data_frame(korpus$)
+dataframe <- f_przeksztalc_korpus_na_data_frame(korpus)
 
 
 
@@ -821,7 +820,7 @@ f_klasyfikuj_knn <- function(data, k, result_column_name, columns){
   Testowy <- data[-wUczacym,]
   
   # Utworzenie modelu
-  #1 linijka nie bierz kolumny 1 i 4 pod uwage, 2 - utworzenie zboru testowego, 3 - utworzenie klasy, 4 - ilu sasiadow ma brac pod uwage
+  #1 linijka nie bierz kolumny 4 pod uwage, 2 - utworzenie zboru testowego, 3 - utworzenie klasy, 4 - ilu sasiadow ma brac pod uwage
   modelSpamKnn <- knn(train = Uczacy[,-columns],
                       test = Testowy[,-columns],
                       cl = Uczacy[,columns],
